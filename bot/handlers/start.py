@@ -3,7 +3,8 @@ from aiogram import Router, F, Bot
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, CallbackQuery
 
-from constants.templates import ADMIN, NOT_ADMIN
+from constants.admin import ADMIN
+from constants.templates import NOT_ADMIN
 
 from utils.check_funcs import contains_bad_words
 
