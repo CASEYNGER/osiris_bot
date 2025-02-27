@@ -1,0 +1,6 @@
+venv
+.env
+bad_words.py
+__pycache__
+users.db
+templates
