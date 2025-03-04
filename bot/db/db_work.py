@@ -14,6 +14,10 @@ async def init_db():
                 user_id INTEGER UNIQUE,
                 username TEXT,
                 full_name TEXT,
+                name TEXT,
+                surname TEXT,
+                email TEXT,
+                phone_number INT,
                 is_admin INTEGER DEFAULT 0
             )
         """)
@@ -36,7 +40,16 @@ async def register_user(user_id: int, username: str, full_name: str):
         await db.commit()
 
 
-async def is_registered(user_id: int) -> bool:
+async def is_registered(user_id: int):
+    async with aiosqlite.connect(DB_PATH) as db:
+        async with db.execute(
+            "SELECT user_id FROM users WHERE user_id = ?", (user_id,)
+        ) as cursor:
+            result = await cursor.fetchone()
+            return result is not None
+
+
+async def is_registered_for_send_msg(user_id: int) -> bool:
     """
     Проверка, зарегистрирован ли пользователь.
 
@@ -44,10 +57,14 @@ async def is_registered(user_id: int) -> bool:
     """
     async with aiosqlite.connect(DB_PATH) as db:
         async with db.execute(
-            "SELECT id FROM users WHERE user_id = ?",
+            "SELECT name, surname, email FROM users WHERE user_id = ?",
             (user_id,)
         ) as cursor:
-            return await cursor.fetchone() is not None
+            result = await cursor.fetchone()
+            if result:
+                name, surname, email = result
+            return bool(name and surname and email)
+        return False
 
 
 async def get_user(user_id: int):
@@ -58,7 +75,7 @@ async def get_user(user_id: int):
     """
     async with aiosqlite.connect(DB_PATH) as db:
         async with db.execute(
-            "SELECT * FROM users WHERE user_id = ?",
+            "SELECT name, surname, email, phone_number FROM users WHERE user_id = ?",
             (user_id,)
         ) as cursor:
             return await cursor.fetchone()
@@ -68,7 +85,7 @@ async def get_users() -> list:
     """Получить список пользователей."""
     async with aiosqlite.connect(DB_PATH) as db:
         cursor = await db.execute(
-            "SELECT user_id, username, full_name FROM users"
+            "SELECT user_id, username, name, surname FROM users"
         )
         users = await cursor.fetchall()
         await cursor.close()
@@ -85,6 +102,42 @@ async def make_admin(user_id: int):
         await db.execute(
             "UPDATE users SET is_admin = 1 WHERE user_id = ?",
             (user_id,)
+        )
+        await db.commit()
+
+
+async def update_name(user_id: int, new_name: str):
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            "UPDATE users SET name = ? WHERE user_id = ?",
+            (new_name, user_id)
+        )
+        await db.commit()
+
+
+async def update_surname(user_id: int, new_surname: str):
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            "UPDATE users SET surname = ? WHERE user_id = ?",
+            (new_surname, user_id)
+        )
+        await db.commit()
+
+
+async def update_phone_number(user_id: int, new_number: int):
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            "UPDATE users SET phone_number = ? WHERE user_id = ?",
+            (new_number, user_id)
+        )
+        await db.commit()
+
+
+async def update_email(user_id: int, new_email: str):
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            "UPDATE users SET email = ? WHERE user_id = ?",
+            (new_email, user_id)
         )
         await db.commit()
 

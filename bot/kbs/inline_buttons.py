@@ -2,6 +2,37 @@
 
 from aiogram.types import InlineKeyboardButton
 
+# Кнопка "Профиль"
+MY_PROFILE = InlineKeyboardButton(
+                text="Профиль",
+                callback_data="go_to_profile"
+                )
+
+
+# Кнопка "Редактировать имя"
+EDIT_PROFILE_NAME = InlineKeyboardButton(
+                text="Изменить имя",
+                callback_data="edit_profile_name"
+                )
+
+# Кнопка "Редактировать фамилию"
+EDIT_PROFILE_SURNAME = InlineKeyboardButton(
+                text="Изменить фамилию",
+                callback_data="edit_profile_surname"
+                )
+
+# Кнопка "Редактировать e-mail"
+EDIT_PROFILE_EMAIL = InlineKeyboardButton(
+                text="Изменить e-mail",
+                callback_data="edit_profile_email"
+                )
+
+# Кнопка "Редактировать номер"
+EDIT_PROFILE_NUMBER = InlineKeyboardButton(
+                text="Изменить номер телефона",
+                callback_data="edit_profile_number"
+                )
+
 # Кнопка "О разработчике"
 ABOUT_DEV = InlineKeyboardButton(
                 text="О разработчике",

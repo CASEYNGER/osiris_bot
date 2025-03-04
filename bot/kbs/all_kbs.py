@@ -11,7 +11,8 @@ def main_kb(user_telegram_id: int):
     """
     kb = [
         [KeyboardButton(text="О разработчике")],
-        [KeyboardButton(text="⚙️ Настройки")]
+        [KeyboardButton(text="Профиль")],
+        # [KeyboardButton(text="⚙️ Настройки")]
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=kb,

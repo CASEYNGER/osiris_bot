@@ -12,6 +12,9 @@ from db.db_work import init_db
 
 from config_reader import config
 from handlers.start import start_router
+from handlers.admin import admin_router
+from handlers.portfolio import portfolio_router
+from handlers.profile import profile_router
 
 
 logging.basicConfig(
@@ -34,7 +37,6 @@ async def set_commands():
     """Настройка командного меню."""
     commands = [
         BotCommand(command="start", description="Запуск бота"),
-        BotCommand(command="status", description="Статус пользователя")
     ]
     await bot.set_my_commands(commands, BotCommandScopeDefault())
 
@@ -42,6 +44,9 @@ async def set_commands():
 async def main():
     """Запуск бота."""
     dp.include_router(start_router)
+    dp.include_router(admin_router)
+    dp.include_router(portfolio_router)
+    dp.include_router(profile_router)
     await bot.delete_webhook(drop_pending_updates=True)
     await init_db()
     await set_commands()

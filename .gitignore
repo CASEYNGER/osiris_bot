@@ -1,7 +1,7 @@
 venv
 .env
-templates.py
+# templates.py
 bad_words.py
 __pycache__
 users.db
-admin.py
+db.py

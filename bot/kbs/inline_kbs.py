@@ -5,7 +5,25 @@ from aiogram.types import InlineKeyboardMarkup
 from .inline_buttons import (
     ABOUT_DEV, GO_HOME, GO_BACK, PORTFOLIO,
     LINKS, CONTACT, SOFT_SKILLS, HARD_SKILLS,
-    GITHUB, LINKED_IN, TG_CHANNEL, INSTAGRAM
+    GITHUB, LINKED_IN, TG_CHANNEL, INSTAGRAM,
+    EDIT_PROFILE_NAME, EDIT_PROFILE_EMAIL,
+    EDIT_PROFILE_NUMBER, EDIT_PROFILE_SURNAME,
+    MY_PROFILE
+    )
+
+
+def edit_profile_ikb():
+    """
+    Редактировать профиль.
+    """
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [EDIT_PROFILE_NAME],
+            [EDIT_PROFILE_SURNAME],
+            [EDIT_PROFILE_EMAIL],
+            [EDIT_PROFILE_NUMBER],
+            [GO_HOME]
+        ]
     )
 
 
@@ -19,7 +37,8 @@ def main_ikb():
         inline_keyboard=[
             [ABOUT_DEV],
             [PORTFOLIO, LINKS],
-            [CONTACT]
+            [CONTACT],
+            [MY_PROFILE]
         ]
     )
 

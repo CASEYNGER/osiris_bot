@@ -1,22 +1,20 @@
 """Хэндлеры (обработчики)."""
 from aiogram import Router, F, Bot
-from aiogram.filters import Command, CommandStart
+from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
 
-from constants.admin import ADMIN
-from constants.templates import NOT_ADMIN
+from config_reader import config
 
 from utils.check_funcs import contains_bad_words
 
 from db.db_work import (
-    register_user, is_registered, make_admin, is_admin,
-    get_users
+    register_user, is_registered, is_registered_for_send_msg
 )
 
 from kbs.all_kbs import main_kb
 from kbs.inline_kbs import (
     main_ikb, about_ikb, pages_ikb, soft_skills,
-    hard_skills, portfolio_ikb
+    hard_skills
     )
 
 from about_me import info
@@ -37,7 +35,7 @@ async def cmd_start(message: Message):
     """
     user_id = message.from_user.id
     username = message.from_user.username or "None"
-    full_name = message.from_user.full_name
+    full_name = message.from_user.full_name or "None"
 
     if await is_registered(user_id):
         await message.answer(
@@ -60,106 +58,12 @@ async def cmd_start(message: Message):
             "помочь тебе узнать больше о моем создателе и всех проектах "
             "которыми мы занимаемся.\n\n"
             "Все, что тебе нужно - это <i>выбрать пункт</i> в меню, и я "
-            "проведу тебя по всем возможностям!",
+            "проведу тебя по всем возможностям! Но для начала "
+            "давай познакомимся.\n\n Заходи в профиль и расскажи о себе!",
             reply_markup=main_kb(
                 user_telegram_id=message.from_user.id
             )
         )
-
-
-@start_router.message(Command("status"))
-async def get_status(message: Message):
-    """
-    Обработчик команды /status.
-
-    Отправка приватной информации (только для
-    авторизированных пользователей)
-
-    :message: сообщение (class Message).
-    """
-    user_id = message.from_user.id
-    username = message.from_user.username
-
-    if not await is_registered(user_id):
-        await message.answer(
-            f"⛔ {username}, вы не авторизованы.\n\n"
-            "Используйте /start для регистрации."
-        )
-        return
-
-    await message.answer(
-        f"<b>Статус пользователя:</b> {message.from_user.full_name}\n\n"
-        f"<b>ID:</b> {message.from_user.id}\n"
-        f"<b>Никнейм:</b> {username}\n"
-        f"<b>Имя:</b> {message.from_user.first_name}\n"
-        f"<b>Фамилия:</b> {message.from_user.last_name}\n"
-    )
-
-
-@start_router.message(Command("get_users"))
-async def send_users_list(message: Message):
-    """
-    Обработчик команды /get_users.
-
-    Отправляет список пользователей (только для админов).
-
-    :message: сообщение (class Message).
-    """
-    users = await get_users()
-    if not await is_admin(message.from_user.id):
-        await message.answer(NOT_ADMIN)
-        return
-    if not users:
-        await message.answer("База данных пуста.")
-        return
-    text = "\n".join(
-        [f"- {user[0]}, @{user[1]}, {user[2]};" for user in users]
-    )
-    await message.answer(f"<b>Список пользователей:</b>\n\n{text}")
-
-
-@start_router.message(Command("make_admin"))
-async def make_admin_command(message: Message):
-    """
-    Обработчик команды /make_admin.
-
-    Делает пользователя администратором (только для админов).
-
-    :message: сообщение (class Message).
-    """
-    if not await is_admin(message.from_user.id):
-        await message.answer(NOT_ADMIN)
-        return
-
-    args = message.text.split()
-    if len(args) < 2 or not args[1].isdigit():
-        await message.answer("⚠ Использование: /make_admin <user_id>")
-        return
-
-    user_id = int(args[1])
-    await make_admin(user_id)
-    await message.answer(f"✅ Пользователь {user_id} теперь администратор!")
-
-
-@start_router.message(Command("admin_panel"))
-async def admin_panel(message: Message):
-    """
-    Обработчик команды /admin_panel.
-
-    Панель администратора (доступ только у админов).
-
-    :message: сообщение (class Message).
-    """
-    if not await is_admin(message.from_user.id):
-        await message.answer(NOT_ADMIN)
-        return
-
-    await message.answer(
-        "🔧 <b>Добро пожаловать в панель администратора!</b>\n\n"
-        "<b>Доступные команды:</b>\n\n"
-        "/status - узнать статус пользователя;\n"
-        "/get_users - получить список пользователей;\n"
-    )
 
 
 @start_router.message(F.text == "⚙️ Настройки")
@@ -228,7 +132,6 @@ async def go_home_handler(callback: CallbackQuery):
     await callback.answer()
 
 
-# Хэндлер на callback "Ссылки"
 @start_router.callback_query(F.data == "pages")
 async def send_pages(callback: CallbackQuery):
     """
@@ -356,22 +259,6 @@ async def get_about_info(callback: CallbackQuery):
     await callback.answer()
 
 
-@start_router.callback_query(F.data == "portfolio")
-async def post_portfolio(callback: CallbackQuery):
-    """
-    Обработчик сallback_query "portfolio".
-
-    Вызывает страницу с портфолио.
-
-    :callback: вызов (class CallbackQuery).
-    """
-    await callback.message.edit_text(
-        "<b>Портфолио</b>\n\n"
-        "<i>(В разработке...)</i>",
-        reply_markup=portfolio_ikb()
-    )
-
-
 @start_router.callback_query(F.data == "contact")
 async def contact_button(callback: CallbackQuery):
     """
@@ -396,10 +283,13 @@ async def send_user_message_to_admin(message: Message, bot: Bot):
     """Редирект сообщений пользователей администратору."""
     user_id = message.from_user.id
 
-    if not await is_registered(user_id):
+    if not await is_registered_for_send_msg(user_id):
         await message.answer(
-            "⛔ Вам нужно зарегистрироваться, чтобы написать админу."
+            "⛔ Вам нужно зарегистрироваться, чтобы отправить сообщение!\n\n"
+            "Перейдите в профиль и заполните следующую информацию:\n"
+            "- Имя;\n- Фамилия;\n - E-mail."
         )
+        return
 
     text = message.text.replace("#связь ", "").strip()
 
@@ -419,7 +309,7 @@ async def send_user_message_to_admin(message: Message, bot: Bot):
             )
         return
 
-    admin_id = ADMIN
+    admin_id = config.admin
     await bot.send_message(
         admin_id,
         f"📩 <b>Сообщение от @{message.from_user.username}:</b>\n\n{text}"
