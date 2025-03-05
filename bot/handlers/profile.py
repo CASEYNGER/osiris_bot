@@ -18,6 +18,8 @@ from fsm.states import EditProfile
 
 from kbs.inline_kbs import edit_profile_ikb
 
+from utils.check_funcs import contains_bad_words
+
 profile_router = Router()
 
 
@@ -30,13 +32,25 @@ async def get_profile(message: Message):
 
     :message: сообщение (class Message).
     """
-    username = message.from_user.username
-    id = message.from_user.id
-    user_info = await get_user(id)
+    user_info = await get_user(message.from_user.id)
 
     await message.answer(
-        f"<b>Профиль пользователя {username}</b>\n\n"
-        f"<b>ID:</b> {id}\n"
+        f"<b>Профиль пользователя</b>\n\n"
+        f"<b>ID:</b> {message.from_user.id}\n"
+        f"<b>Имя:</b> {user_info[0]}\n"
+        f"<b>Фамилия:</b> {user_info[1]}\n"
+        f"<b>E-mail:</b> {user_info[2]}\n"
+        f"<b>Номер телефона:</b> {user_info[3]}\n",
+        reply_markup=edit_profile_ikb()
+    )
+
+
+@profile_router.callback_query(F.data == "go_to_profile")
+async def get_profile_call(callback: CallbackQuery):
+    user_info = await get_user(callback.from_user.id)
+    await callback.message.edit_text(
+        f"<b>Профиль пользователя</b>\n\n"
+        f"<b>ID:</b> {callback.from_user.id}\n"
         f"<b>Имя:</b> {user_info[0]}\n"
         f"<b>Фамилия:</b> {user_info[1]}\n"
         f"<b>E-mail:</b> {user_info[2]}\n"
@@ -76,12 +90,29 @@ async def process_name(message: Message, state: FSMContext):
 
     """
     new_name = message.text
+
     if not re.match(NAME_REGEX, new_name):
         await message.answer(
             "Имя должно содержать только буквы и пробелы.\n\n"
             "Попробуйте еще раз."
         )
         return
+
+    if not len(new_name) <= 15:
+        await message.answer(
+            "Имя не может быть длиннее 15 символов.\n\n"
+            "Попробуйте еще раз."
+        )
+        return
+
+    if contains_bad_words(new_name):
+        await message.answer(
+            "Имя не может содержать оскорбительное или "
+            "унижающее человеческое достоинство слово.\n\n"
+            "Попробуйте еще раз."
+        )
+        return
+
     user_id = message.from_user.id
     await update_name(user_id, new_name)
     await state.clear()
@@ -123,12 +154,29 @@ async def process_surname(message: Message, state: FSMContext):
     :state: хранит данные о текущем состоянии пользователя.
     """
     new_surname = message.text
+
     if not re.match(NAME_REGEX, new_surname):
         await message.answer(
             "Фамилия должна содержать только буквы и пробелы.\n\n"
             "Попробуйте еще раз."
         )
         return
+
+    if not len(new_surname) <= 20:
+        await message.answer(
+            "Фамилия не может быть длиннее 20 символов.\n\n"
+            "Попробуйте еще раз."
+        )
+        return
+
+    if contains_bad_words(new_surname):
+        await message.answer(
+            "Фамилия не может содержать оскорбительное или "
+            "унижающее человеческое достоинство слово.\n\n"
+            "Попробуйте еще раз."
+        )
+        return
+
     user_id = message.from_user.id
     await update_surname(user_id, new_surname)
     await state.clear()
@@ -178,6 +226,23 @@ async def process_email(message: Message, state: FSMContext):
             "соответствует формату."
         )
         return
+
+    if not len(new_email) <= 30:
+        await message.answer(
+            "Адрес электронной почты не может быть "
+            " длиннее 30 символов.\n\n"
+            "Попробуйте еще раз."
+        )
+        return
+
+    if contains_bad_words(new_email):
+        await message.answer(
+            "Адрес электронной почты не может содержать оскорбительное или "
+            "унижающее человеческое достоинство слово.\n\n"
+            "Попробуйте еще раз."
+        )
+        return
+
     user_id = message.from_user.id
     await update_email(user_id, new_email)
     await state.clear()
@@ -202,7 +267,7 @@ async def edit_user_profile_number(
     """
     await callback.message.edit_text(
         "Введите номер вашего мобильного телефона в следующем формате:\n\n"
-        "<i>79998887766</i> или <i>+79998887766</i>"
+        "<i>+79998887766</i>"
     )
     await state.set_state(EditProfile.waiting_for_phone_number)
     await callback.answer()
@@ -226,6 +291,8 @@ async def process_phone_number(message: Message, state: FSMContext):
             "Убедитесь, что введеный номер телефона "
             "соответствует формату."
         )
+        return
+
     user_id = message.from_user.id
     await update_phone_number(user_id, new_phone_number)
     await state.clear()

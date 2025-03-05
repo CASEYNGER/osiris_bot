@@ -8,7 +8,7 @@ from .inline_buttons import (
     GITHUB, LINKED_IN, TG_CHANNEL, INSTAGRAM,
     EDIT_PROFILE_NAME, EDIT_PROFILE_EMAIL,
     EDIT_PROFILE_NUMBER, EDIT_PROFILE_SURNAME,
-    MY_PROFILE
+    MY_PROFILE, OSIRIS, BACK_TO_PORTFOLIO, OSIRIS_GIT_HUB
     )
 
 
@@ -70,7 +70,7 @@ def about_ikb():
     )
 
 
-def pages_ikb():
+def links_ikb():
     """
     Страница с ссылками.
 
@@ -93,7 +93,22 @@ def portfolio_ikb():
     Кнопка возвращает на главную страницу.
     """
     return InlineKeyboardMarkup(
-        inline_keyboard=[[GO_HOME]]
+        inline_keyboard=[
+            [OSIRIS],
+            [GO_HOME]
+        ]
+    )
+
+
+def osiris_ikb():
+    """
+    Страница с информаией о боте OSIRIS.
+    """
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [OSIRIS_GIT_HUB],
+            [BACK_TO_PORTFOLIO]
+        ]
     )
 
 

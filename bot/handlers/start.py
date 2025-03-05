@@ -12,12 +12,6 @@ from db.db_work import (
 )
 
 from kbs.all_kbs import main_kb
-from kbs.inline_kbs import (
-    main_ikb, about_ikb, pages_ikb, soft_skills,
-    hard_skills
-    )
-
-from about_me import info
 
 start_router = Router()
 
@@ -66,199 +60,6 @@ async def cmd_start(message: Message):
         )
 
 
-@start_router.message(F.text == "⚙️ Настройки")
-async def get_settings(message: Message):
-    """
-    Обработчик текста "⚙️ Настройки".
-
-    Вызывает меню настроек.
-
-    :message: сообщение (class Message).
-    """
-    await message.answer(
-        "<b>Настройки</b>\n\n"
-        "Это раздел с общими настройками виртуального помощника, "
-        "где вы можете <i>(в разработке...)</i> ...\n\n"
-        "Посмотреть информацию о себе возможно командой /status"
-    )
-
-
-@start_router.message(F.text == "О разработчике")
-async def post_info(message: Message):
-    """
-    Обработчик текста "О разработчике".
-
-    Вызывает информацию о разработчике и inline_menu.
-
-    :message: сообщение (class Message).
-    """
-    await message.answer(
-        "<b>О разработчике</b>\n\n"
-        f"<b>ФИО:</b> {info[0]}\n"
-        f"<b>Дата рождения:</b> {info[1]}\n"
-        f"<b>Место рождения:</b> {info[2]}\n"
-        f"<b>Уровень образования:</b> {info[3]}\n"
-        "\nJunior backend-разработчик с энтузиазмом к созданию "
-        "качественного кода и обучению новым технологиям. "
-        "Имею опыт в разработке на языке Python"
-        " и знаком с популярными фреймворками,"
-        " такими как Aiogram для создания"
-        " ботов и Django для веб-разработки. "
-        "Стремлюсь к постоянному совершенствованию"
-        " своих навыков и решению реальных задач с использованием современных"
-        " инструментов разработки.\n\n"
-        "Мой путь в программировании только начинается, но я уже успел"
-        " поработать с различными проектами, которые помогли мне освоить"
-        " основы разработки и повысить уровень знаний. Я открыт к новым"
-        " вызовам и всегда готов учиться, чтобы развиваться как специалист"
-        " в области технологий.",
-        reply_markup=about_ikb()
-    )
-
-
-@start_router.callback_query(F.data == "start")
-async def go_home_handler(callback: CallbackQuery):
-    """
-    Обработчик сallback_query "start".
-
-    Вызывает основное inline-меню.
-
-    :callback: вызов (class CallbackQuery).
-    """
-    await callback.message.edit_text(
-        "<b>Главное меню</b>",
-        reply_markup=main_ikb()
-    )
-    await callback.answer()
-
-
-@start_router.callback_query(F.data == "pages")
-async def send_pages(callback: CallbackQuery):
-    """
-    Обработчик сallback_query "pages".
-
-    Вызывает inline-меню с ссылками на
-    социальные сети.
-
-    :callback: вызов (class CallbackQuery).
-    """
-    await callback.message.edit_text(
-        "<b>Ссылки на социальные сети</b>",
-        reply_markup=pages_ikb()
-    )
-    await callback.answer()
-
-
-@start_router.callback_query(F.data == "soft_skills")
-async def get_soft_skills(callback: CallbackQuery):
-    """
-    Обработчик сallback_query "soft_skills".
-
-    Вызывает страницу с информацией о софт-скиллах.
-
-    :callback: вызов (class CallbackQuery).
-    """
-    await callback.message.edit_text(
-        "<b>Софт-скиллы</b>\n\n"
-        "<b>Командная работа и коммуникабельность</b>\n"
-        "Легко нахожу общий язык с коллегами и людьми, "
-        "умею работать в команде.\n\n"
-        "<b>Ответственность</b>\n"
-        "Знаю ценность своей работы и цену ее результатов.\n\n"
-        "<b>Внимательность</b>\n"
-        "Стремлюсь к качеству и точности продукта, изучаю требования"
-        " и спецификации.\n\n"
-        "<b>Адаптивность</b>\n"
-        "Быстро осваиваю новые инструменты и технологии.\n\n"
-        "<b>Навыки критического мышления</b>\n"
-        "Умею анализировать проблемы, находить оптимальные решения "
-        "и обосновывать их.\n\n"
-        "<b>Эмоциональный интеллект</b>\n"
-        "Способен понимать эмоции людей, реагировать на них с уважением "
-        "и учитывать их, как в жизни, так и в работе.\n\n"
-        "<b>Гибкость</b>\n"
-        "Легко приспосабливаюсь к изменениям, не боюсь пробовать новое.\n\n"
-        "<b>Решение конфликтов</b>\n"
-        "Нахожу пути для урегулирования разногласий, добиваюсь "
-        "конструктивного взаимодействия.",
-        reply_markup=soft_skills()
-    )
-    await callback.answer()
-
-
-@start_router.callback_query(F.data == "hard_skills")
-async def get_hard_skills(callback: CallbackQuery):
-    """
-    Обработчик сallback_query "hard_skills".
-
-    Вызывает страницу с информацией о хард-скиллах.
-
-    :callback: вызов (class CallbackQuery).
-    """
-    await callback.message.edit_text(
-        "<b>Хард-скиллы</b>\n\n"
-        "<b>Языки программирования:</b>\n"
-        "- Python\n\n"
-        "<b>Языки разметки и форматирования:</b>\n"
-        "- HTML\n- CSS\n\n"
-        "<b>Фреймворки:</b>\n"
-        "- Django\n- Aiogram\n- Requests\n\n"
-        "<b>Базы данных:</b>\n"
-        "- SQL (PostgreSQL)\n- ORM (SQLAlchemy, SQLite)\n\n"
-        "<b>API и веб-сервисы:</b>\n"
-        "- <i>В процессе изучения...</i>\n\n"
-        "<b>Тестирование:</b>\n"
-        "- PyTest, Unittest\n\n"
-        "<b>Системы контроля версий:</b>\n"
-        "- Git (GitHub)\n\n"
-        "<b>Контейнеризация и DevOps:</b>\n"
-        "- Docker (<i>В процессе изучения...</i>)\n"
-        "- CI/CD (<i>В процессе изучения...</i>)\n\n"
-        "<b>Безопасность:</b>\n"
-        "- Основы безопасности приложений, шифрование данных "
-        "и защита от SQL-инъекций, XSS, CSRF.",
-        reply_markup=hard_skills()
-    )
-    await callback.answer()
-
-
-@start_router.callback_query(F.data == "about")
-async def get_about_info(callback: CallbackQuery):
-    """
-    Обработчик сallback_query "about".
-
-    Вызывает страницу с информацией о разработчике.
-
-    :callback: вызов (class CallbackQuery).
-    """
-    about_text = (
-        "<b>О разработчике</b>\n\n"
-        f"<b>ФИО:</b> {info[0]}\n"
-        f"<b>Дата рождения:</b> {info[1]}\n"
-        f"<b>Место рождения:</b> {info[2]}\n"
-        f"<b>Уровень образования:</b> {info[3]}\n\n"
-        "Junior backend-разработчик с энтузиазмом к созданию"
-        "качественного кода и обучению новым технологиям. "
-        "Имею опыт в разработке на языке Python"
-        " и знаком с популярными фреймворками,"
-        " такими как Aiogram для создания"
-        " ботов и Django для веб-разработки. "
-        "Стремлюсь к постоянному совершенствованию"
-        " своих навыков и решению реальных задач с использованием современных"
-        " инструментов разработки.\n\n"
-        "Мой путь в программировании только начинается, но я уже успел"
-        " поработать с различными проектами, которые помогли мне освоить"
-        " основы разработки и повысить уровень знаний. Я открыт к новым"
-        " вызовам и всегда готов учиться, чтобы развиваться как специалист"
-        " в области технологий."
-    )
-    await callback.message.edit_text(
-        about_text,
-        reply_markup=about_ikb()
-    )
-    await callback.answer()
-
-
 @start_router.callback_query(F.data == "contact")
 async def contact_button(callback: CallbackQuery):
     """
@@ -285,9 +86,9 @@ async def send_user_message_to_admin(message: Message, bot: Bot):
 
     if not await is_registered_for_send_msg(user_id):
         await message.answer(
-            "⛔ Вам нужно зарегистрироваться, чтобы отправить сообщение!\n\n"
+            "⛔ Чтобы отправить сообщение пройдите аутентификацию!\n\n"
             "Перейдите в профиль и заполните следующую информацию:\n"
-            "- Имя;\n- Фамилия;\n - E-mail."
+            "- Имя;\n- Фамилия;\n- E-mail <i>(для связи)</i>."
         )
         return
 

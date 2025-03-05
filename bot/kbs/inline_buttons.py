@@ -2,6 +2,30 @@
 
 from aiogram.types import InlineKeyboardButton
 
+# Кнопка "Telegram-бот OSIRIS"
+OSIRIS = InlineKeyboardButton(
+                text="Telegram-бот OSIRIS",
+                callback_data="get_osiris"
+                )
+
+# Кнопка "GitHub"
+OSIRIS_GIT_HUB = InlineKeyboardButton(
+                text="GitHub",
+                url="https://github.com/CASEYNGER/osiris_bot"
+                )
+
+# Кнопка "К портфолио"
+BACK_TO_PORTFOLIO = InlineKeyboardButton(
+                text="<< К портфолио",
+                callback_data="portfolio"
+                )
+
+# Кнопка "Портфолио"
+PORTFOLIO = InlineKeyboardButton(
+                    text="Портфолио",
+                    callback_data="portfolio"
+                )
+
 # Кнопка "Профиль"
 MY_PROFILE = InlineKeyboardButton(
                 text="Профиль",
@@ -51,16 +75,10 @@ GO_BACK = InlineKeyboardButton(
                 callback_data="about"
                 )
 
-# Кнопка "Портфолио"
-PORTFOLIO = InlineKeyboardButton(
-                    text="Портфолио",
-                    callback_data="portfolio"
-                )
-
 # Кнопка "Ссылки"
 LINKS = InlineKeyboardButton(
                     text="Ссылки",
-                    callback_data="pages"
+                    callback_data="links"
                 )
 
 # Кнопка "Связаться"
