@@ -18,12 +18,12 @@ Osiris Bot предоставляет пользователю интерфей�
 
 1. Клонируйте репозиторий:
     ```bash
-    git clone https://github.com/yourusername/osiris-bot.git
+    git clone https://github.com/yourusername/osiris_bot
     ```
 
 2. Перейдите в директорию проекта:
     ```bash
-    cd osiris-bot
+    cd osiris_bot
     ```
 
 3. Создайте виртуальное окружение:
