@@ -8,7 +8,17 @@ from .inline_buttons import (
     GITHUB, LINKED_IN, TG_CHANNEL, INSTAGRAM,
     EDIT_PROFILE_NAME, EDIT_PROFILE_EMAIL,
     EDIT_PROFILE_NUMBER, EDIT_PROFILE_SURNAME,
-    MY_PROFILE, OSIRIS, BACK_TO_PORTFOLIO, OSIRIS_GIT_HUB
+    MY_PROFILE, OSIRIS, BACK_TO_PORTFOLIO, OSIRIS_GIT_HUB,
+    BACK_TO_PROFILE
+    )
+
+
+def back_to_profile_ikb():
+    """
+    Вернуться в профиль.
+    """
+    return InlineKeyboardMarkup(
+        inline_keyboard=[[BACK_TO_PROFILE]]
     )
 
 

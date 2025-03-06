@@ -12,6 +12,7 @@ from db.db_work import (
 )
 
 from kbs.all_kbs import main_kb
+from kbs.inline_kbs import about
 
 start_router = Router()
 
@@ -74,7 +75,8 @@ async def contact_button(callback: CallbackQuery):
         "Для <b>возможности</b> дальнейшей коммуникации "
         "используйте корректный формат обращения:\n\n"
         "<b>Пример:</b> #связь <i>Привет, я юзер!...</i>\n\n"
-        "Напишите ваше сообщение и я передам его!"
+        "Напишите ваше сообщение и я передам его!",
+        reply_markup=about()
     )
     await callback.answer()
 
@@ -117,5 +119,6 @@ async def send_user_message_to_admin(message: Message, bot: Bot):
     )
     await message.answer(
         "✅ <b>Сообщение успешно отправлено.</b>\n\n"
-        "В ближайшее время мой создатель обязательно его прочитает."
+        "В ближайшее время мой создатель обязательно его прочитает.",
+        reply_markup=about()
         )

@@ -19,6 +19,7 @@ async def post_portfolio(callback: CallbackQuery):
         "<b>Портфолио</b>\n\n",
         reply_markup=portfolio_ikb()
     )
+    await callback.answer()
 
 
 @portfolio_router.callback_query(F.data == "get_osiris")
@@ -41,3 +42,4 @@ async def post_osiris(callback: CallbackQuery):
             "🔹 <b>Re</b>\nОбработка и валидация текста.",
             reply_markup=osiris_ikb()
     )
+    await callback.answer()

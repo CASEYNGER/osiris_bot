@@ -32,6 +32,12 @@ MY_PROFILE = InlineKeyboardButton(
                 callback_data="go_to_profile"
                 )
 
+# Кнопка "<< В профиль"
+BACK_TO_PROFILE = InlineKeyboardButton(
+                text="<< В профиль",
+                callback_data="go_to_profile"
+                )
+
 
 # Кнопка "Редактировать имя"
 EDIT_PROFILE_NAME = InlineKeyboardButton(

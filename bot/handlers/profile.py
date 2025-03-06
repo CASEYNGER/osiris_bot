@@ -16,7 +16,7 @@ from db.db_work import (
 
 from fsm.states import EditProfile
 
-from kbs.inline_kbs import edit_profile_ikb
+from kbs.inline_kbs import edit_profile_ikb, back_to_profile_ikb
 
 from utils.check_funcs import contains_bad_words
 
@@ -43,11 +43,20 @@ async def get_profile(message: Message):
         f"<b>Номер телефона:</b> {user_info[3]}\n",
         reply_markup=edit_profile_ikb()
     )
+    await message.answer()
 
 
 @profile_router.callback_query(F.data == "go_to_profile")
 async def get_profile_call(callback: CallbackQuery):
+    """
+    Обработчик callback_query "go_to_profile".
+
+    Отправка данных профиля.
+
+    :callback: вызов (class CallbackQuery).
+    """
     user_info = await get_user(callback.from_user.id)
+
     await callback.message.edit_text(
         f"<b>Профиль пользователя</b>\n\n"
         f"<b>ID:</b> {callback.from_user.id}\n"
@@ -57,6 +66,7 @@ async def get_profile_call(callback: CallbackQuery):
         f"<b>Номер телефона:</b> {user_info[3]}\n",
         reply_markup=edit_profile_ikb()
     )
+    await callback.answer()
 
 
 @profile_router.callback_query(F.data == "edit_profile_name")
@@ -117,7 +127,8 @@ async def process_name(message: Message, state: FSMContext):
     await update_name(user_id, new_name)
     await state.clear()
     await message.answer(
-        f"✅ Ваше имя обновлено на: <b>{new_name}</b>"
+        f"✅ Ваше имя обновлено на: <b>{new_name}</b>",
+        reply_markup=back_to_profile_ikb()
     )
 
 
@@ -181,7 +192,8 @@ async def process_surname(message: Message, state: FSMContext):
     await update_surname(user_id, new_surname)
     await state.clear()
     await message.answer(
-        f"✅ Ваша фамилия обновлена на: <b>{new_surname}</b>"
+        f"✅ Ваша фамилия обновлена на: <b>{new_surname}</b>",
+        reply_markup=back_to_profile_ikb()
     )
 
 
@@ -247,7 +259,8 @@ async def process_email(message: Message, state: FSMContext):
     await update_email(user_id, new_email)
     await state.clear()
     await message.answer(
-        f"✅ Ваша почта обновлена на: <b>{new_email}</b>"
+        f"✅ Ваша почта обновлена на: <b>{new_email}</b>",
+        reply_markup=back_to_profile_ikb()
     )
 
 
@@ -297,5 +310,6 @@ async def process_phone_number(message: Message, state: FSMContext):
     await update_phone_number(user_id, new_phone_number)
     await state.clear()
     await message.answer(
-        f"✅ Ваш мобильный номер обновлен на: <b>{new_phone_number}</b>"
+        f"✅ Ваш мобильный номер обновлен на: <b>{new_phone_number}</b>",
+        reply_markup=back_to_profile_ikb()
     )
