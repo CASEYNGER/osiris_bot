@@ -1,17 +1,22 @@
 """Хэндлеры (обработчики)."""
 from aiogram import Router, F, Bot
+from aiogram.enums import ContentType
 from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
+
+from constants.cnst_info import (
+    WELCOME_AUTH, WELCOME_NON_AUTH, CONTACT_WITH_ADMIN,
+)
 
 from config_reader import config
 
 from utils.check_funcs import contains_bad_words
 
 from db.db_work import (
-    register_user, is_registered, is_registered_for_send_msg
+    register_user, is_registered
 )
 
-from kbs.all_kbs import main_kb
+from kbs.all_kbs import request_contact_kb
 from kbs.inline_kbs import about
 
 start_router = Router()
@@ -29,35 +34,38 @@ async def cmd_start(message: Message):
     :message: сообщение (class Message).
     """
     user_id = message.from_user.id
-    username = message.from_user.username or "None"
-    full_name = message.from_user.full_name or "None"
 
     if await is_registered(user_id):
         await message.answer(
-            f"Рад тебя видеть снова, <b>{full_name}</b>! 👋\n\n"
-            "Я <b>Осирис</b>, твой виртуальный ассистент в мире "
-            "технологий.\n\n"
-            "Готов помочь тебе узнать больше о моем создателе. Я собрал "
-            "самую актуальную информацию и готов с тобой поделиться.\n\n"
-            "Просто <i>выбери пункт</i> из меню, чтобы начать работу!",
-            reply_markup=main_kb(
+            WELCOME_NON_AUTH,
+            reply_markup=about()
+        )
+    else:
+        await message.answer(
+            WELCOME_AUTH,
+            reply_markup=request_contact_kb(
                 user_telegram_id=message.from_user.id
             )
         )
-    else:
-        await register_user(user_id, username, full_name)
+
+
+@start_router.message(F.content_type == ContentType.CONTACT)
+async def get_contact(message: Message):
+    user_id = message.from_user.id
+    username = message.from_user.username or "None"
+    full_name = message.from_user.full_name or "None"
+    phone_number = message.contact.phone_number
+    if message.contact.user_id == user_id:
+        await register_user(user_id, username, full_name, phone_number)
         await message.answer(
-            f"Добро пожаловать, {username}! 👋\n\n"
-            "Меня зовут Осирис, и ты только что стал частью моего"
-            "маленького технологичного мира. Я создан для того, чтобы "
-            "помочь тебе узнать больше о моем создателе и всех проектах "
-            "которыми мы занимаемся.\n\n"
-            "Все, что тебе нужно - это <i>выбрать пункт</i> в меню, и я "
-            "проведу тебя по всем возможностям! Но для начала "
-            "давай познакомимся.\n\n Заходи в профиль и расскажи о себе!",
-            reply_markup=main_kb(
-                user_telegram_id=message.from_user.id
-            )
+            f"✅ Спасибо! Ваш номер {phone_number} сохранен.\n\n"
+            "Нажмите на кнопку ниже:",
+            reply_markup=about()
+        )
+    else:
+        await message.answer(
+            "Пожалуйста, отправьте свой номер через кнопку ниже. 📲",
+            reply_markup=request_contact_kb
         )
 
 
@@ -71,11 +79,7 @@ async def contact_button(callback: CallbackQuery):
     :callback: вызов (class CallbackQuery).
     """
     await callback.message.edit_text(
-        "<b>Связь с разработчиком</b>\n\n"
-        "Для <b>возможности</b> дальнейшей коммуникации "
-        "используйте корректный формат обращения:\n\n"
-        "<b>Пример:</b> #связь <i>Привет, я юзер!...</i>\n\n"
-        "Напишите ваше сообщение и я передам его!",
+        CONTACT_WITH_ADMIN,
         reply_markup=about()
     )
     await callback.answer()
@@ -84,16 +88,6 @@ async def contact_button(callback: CallbackQuery):
 @start_router.message(F.text.startswith("#связь "))
 async def send_user_message_to_admin(message: Message, bot: Bot):
     """Редирект сообщений пользователей администратору."""
-    user_id = message.from_user.id
-
-    if not await is_registered_for_send_msg(user_id):
-        await message.answer(
-            "⛔ Чтобы отправить сообщение пройдите аутентификацию!\n\n"
-            "Перейдите в профиль и заполните следующую информацию:\n"
-            "- Имя;\n- Фамилия;\n- E-mail <i>(для связи)</i>."
-        )
-        return
-
     text = message.text.replace("#связь ", "").strip()
 
     if not text:

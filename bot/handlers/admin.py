@@ -30,7 +30,7 @@ async def send_users_list(message: Message):
         await message.answer("База данных пуста.", reply_markup=about())
         return
     text = "\n".join(
-        [f"- {user[0]}, @{user[1]}, {user[2]} {user[3]};" for user in users]
+        [f"- {user[0]}, @{user[1]}, {user[2]};" for user in users]
     )
     await message.answer(
         f"<b>Список пользователей:</b>\n\n{text}",

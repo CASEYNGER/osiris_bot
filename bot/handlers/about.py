@@ -1,7 +1,7 @@
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import CallbackQuery
 
-from constants.about_me import (
+from constants.cnst_info import (
     TEXT_ABOUT_ME, SOFT_SKILLS_LIST, HARD_SKILLS_LIST
 )
 
@@ -10,21 +10,6 @@ from kbs.inline_kbs import (
 )
 
 about_router = Router()
-
-
-@about_router.message(F.text == "О разработчике")
-async def post_info(message: Message):
-    """
-    Обработчик текста "О разработчике".
-
-    Вызывает информацию о разработчике и inline_menu.
-
-    :message: сообщение (class Message).
-    """
-    await message.answer(
-        TEXT_ABOUT_ME,
-        reply_markup=about_ikb()
-    )
 
 
 @about_router.callback_query(F.data == "about")
@@ -53,7 +38,8 @@ async def go_home_handler(callback: CallbackQuery):
     :callback: вызов (class CallbackQuery).
     """
     await callback.message.edit_text(
-        "<b>Главное меню</b>",
+        "<b>Главное меню</b>\n\n"
+        "Навигация по возможностям бота.",
         reply_markup=main_ikb()
     )
     await callback.answer()

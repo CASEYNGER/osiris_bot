@@ -17,7 +17,9 @@ async def send_pages(callback: CallbackQuery):
     :callback: вызов (class CallbackQuery).
     """
     await callback.message.edit_text(
-        "<b>Ссылки на социальные сети</b>",
+        "<b>Ссылки</b>\n\n"
+        "Перечень полезных ресурсов и страниц в "
+        "социальных сетях.",
         reply_markup=links_ikb()
     )
     await callback.answer()

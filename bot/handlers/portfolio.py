@@ -16,7 +16,8 @@ async def post_portfolio(callback: CallbackQuery):
     :callback: вызов (class CallbackQuery).
     """
     await callback.message.edit_text(
-        "<b>Портфолио</b>\n\n",
+        "<b>Портфолио</b>\n\n"
+        "Описание проектов и выполненных работ.",
         reply_markup=portfolio_ikb()
     )
     await callback.answer()

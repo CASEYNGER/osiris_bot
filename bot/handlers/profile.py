@@ -6,12 +6,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from constants.templates import (
-    NAME_REGEX, EMAIL_REGEX, PHONE_REGEX
+    NAME_REGEX, EMAIL_REGEX,
 )
 
 from db.db_work import (
     get_user, update_name, update_surname, update_email,
-    update_phone_number
 )
 
 from fsm.states import EditProfile
@@ -21,29 +20,6 @@ from kbs.inline_kbs import edit_profile_ikb, back_to_profile_ikb
 from utils.check_funcs import contains_bad_words
 
 profile_router = Router()
-
-
-@profile_router.message(F.text == "Профиль")
-async def get_profile(message: Message):
-    """
-    Обработчик текста "Профиль".
-
-    Отправка данных профиля.
-
-    :message: сообщение (class Message).
-    """
-    user_info = await get_user(message.from_user.id)
-
-    await message.answer(
-        f"<b>Профиль пользователя</b>\n\n"
-        f"<b>ID:</b> {message.from_user.id}\n"
-        f"<b>Имя:</b> {user_info[0]}\n"
-        f"<b>Фамилия:</b> {user_info[1]}\n"
-        f"<b>E-mail:</b> {user_info[2]}\n"
-        f"<b>Номер телефона:</b> {user_info[3]}\n",
-        reply_markup=edit_profile_ikb()
-    )
-    await message.answer()
 
 
 @profile_router.callback_query(F.data == "go_to_profile")
@@ -260,56 +236,5 @@ async def process_email(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
         f"✅ Ваша почта обновлена на: <b>{new_email}</b>",
-        reply_markup=back_to_profile_ikb()
-    )
-
-
-@profile_router.callback_query(F.data == "edit_profile_number")
-async def edit_user_profile_number(
-    callback: CallbackQuery,
-    state: FSMContext
-):
-    """
-    Обработчик callback_query "edit_profile_number".
-
-    Вызывает FSM EditProfile и переводит в режим ожидания
-    ввода от пользователя значения нового номера телефона.
-
-    :callback: вызов (class CallbackQuery);
-    :state: хранит данные о текущем состоянии пользователя.
-    """
-    await callback.message.edit_text(
-        "Введите номер вашего мобильного телефона в следующем формате:\n\n"
-        "<i>+79998887766</i>"
-    )
-    await state.set_state(EditProfile.waiting_for_phone_number)
-    await callback.answer()
-
-
-@profile_router.message(StateFilter(EditProfile.waiting_for_phone_number))
-async def process_phone_number(message: Message, state: FSMContext):
-    """
-    Обработчик состояния "waiting_for_name".
-
-    Проверка на валидность введенных данных и обновление
-    email в БД.
-
-    :message: сообщение (class Message);
-    :state: хранит данные о текущем состоянии пользователя.
-    """
-    new_phone_number = message.text
-    if not re.match(PHONE_REGEX, new_phone_number):
-        await message.answer(
-            "Неправильный формат номера телефона.\n\n"
-            "Убедитесь, что введеный номер телефона "
-            "соответствует формату."
-        )
-        return
-
-    user_id = message.from_user.id
-    await update_phone_number(user_id, new_phone_number)
-    await state.clear()
-    await message.answer(
-        f"✅ Ваш мобильный номер обновлен на: <b>{new_phone_number}</b>",
         reply_markup=back_to_profile_ikb()
     )

@@ -3,21 +3,21 @@
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
 
-def main_kb(user_telegram_id: int):
+def request_contact_kb(user_telegram_id: int):
     """
-    Создает основное меню.
+    Добавляет верификацию по номеру телефона.
 
     :user_telegram_id: идентификационный номер пользователя.
     """
-    kb = [
-        [KeyboardButton(text="О разработчике")],
-        [KeyboardButton(text="Профиль")],
-        # [KeyboardButton(text="⚙️ Настройки")]
-    ]
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=kb,
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                KeyboardButton(
+                    text="📞 Отправить номер",
+                    request_contact=True
+                )
+            ]
+        ],
         resize_keyboard=True,
-        one_time_keyboard=True,
-        input_field_placeholder="Выберите пункт меню:"
+        one_time_keyboard=True
     )
-    return keyboard

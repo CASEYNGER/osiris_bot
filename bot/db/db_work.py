@@ -17,14 +17,16 @@ async def init_db():
                 name TEXT,
                 surname TEXT,
                 email TEXT,
-                phone_number INT,
+                phone_number TEXT,
                 is_admin INTEGER DEFAULT 0
             )
         """)
         await db.commit()
 
 
-async def register_user(user_id: int, username: str, full_name: str):
+async def register_user(
+    user_id: int, username: str, full_name: str, phone_number: str
+):
     """
     Регистрация пользователя.
 
@@ -33,38 +35,26 @@ async def register_user(user_id: int, username: str, full_name: str):
     :full_name: полное имя
     """
     async with aiosqlite.connect(DB_PATH) as db:
-        await db.execute("""
-            INSERT OR IGNORE INTO users (user_id, username, full_name)
-            VALUES (?, ?, ?)
-        """, (user_id, username, full_name))
+        await db.execute(
+            """
+            INSERT OR IGNORE INTO users (
+            user_id, username, full_name, phone_number
+            )
+            VALUES (?, ?, ?, ?)
+            """, (user_id, username, full_name, phone_number))
         await db.commit()
 
 
 async def is_registered(user_id: int):
     async with aiosqlite.connect(DB_PATH) as db:
         async with db.execute(
-            "SELECT user_id FROM users WHERE user_id = ?", (user_id,)
+            """
+            SELECT user_id FROM users
+            WHERE user_id = ?
+            """, (user_id,)
         ) as cursor:
             result = await cursor.fetchone()
             return result is not None
-
-
-async def is_registered_for_send_msg(user_id: int) -> bool:
-    """
-    Проверка, зарегистрирован ли пользователь.
-
-    :user_id: айди пользователя.
-    """
-    async with aiosqlite.connect(DB_PATH) as db:
-        async with db.execute(
-            "SELECT name, surname, email FROM users WHERE user_id = ?",
-            (user_id,)
-        ) as cursor:
-            result = await cursor.fetchone()
-            if result:
-                name, surname, email = result
-            return bool(name and surname and email)
-        return False
 
 
 async def get_user(user_id: int):
@@ -75,8 +65,10 @@ async def get_user(user_id: int):
     """
     async with aiosqlite.connect(DB_PATH) as db:
         async with db.execute(
-            "SELECT name, surname, email, phone_number FROM users WHERE user_id = ?",
-            (user_id,)
+            """
+            SELECT name, surname, email, phone_number FROM users
+            WHERE user_id = ?
+            """, (user_id,)
         ) as cursor:
             return await cursor.fetchone()
 
@@ -85,7 +77,7 @@ async def get_users() -> list:
     """Получить список пользователей."""
     async with aiosqlite.connect(DB_PATH) as db:
         cursor = await db.execute(
-            "SELECT user_id, username, name, surname FROM users"
+            "SELECT user_id, username, phone_number FROM users"
         )
         users = await cursor.fetchall()
         await cursor.close()
@@ -107,6 +99,12 @@ async def make_admin(user_id: int):
 
 
 async def update_name(user_id: int, new_name: str):
+    """
+    Обновление имени.
+
+    :user_id: айди пользователя;
+    :new_name: новое имя.
+    """
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(
             "UPDATE users SET name = ? WHERE user_id = ?",
@@ -116,6 +114,12 @@ async def update_name(user_id: int, new_name: str):
 
 
 async def update_surname(user_id: int, new_surname: str):
+    """
+    Обновление фамилии.
+
+    :user_id: айди пользователя;
+    :new_surname: новая фамилия.
+    """
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(
             "UPDATE users SET surname = ? WHERE user_id = ?",
@@ -124,16 +128,13 @@ async def update_surname(user_id: int, new_surname: str):
         await db.commit()
 
 
-async def update_phone_number(user_id: int, new_number: int):
-    async with aiosqlite.connect(DB_PATH) as db:
-        await db.execute(
-            "UPDATE users SET phone_number = ? WHERE user_id = ?",
-            (new_number, user_id)
-        )
-        await db.commit()
-
-
 async def update_email(user_id: int, new_email: str):
+    """
+    Обновление адреса электронной почты.
+
+    :user_id: айди пользователя;
+    :new_email: новый адрес электронной почты.
+    """
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(
             "UPDATE users SET email = ? WHERE user_id = ?",
